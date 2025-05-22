@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MultiModel News Detector</title>
+</head>
+<body>
+  <div style="padding:20px; max-width:600px; margin:auto;">
+    <h1>📰 MultiModel Fake News Detection</h1>
+
+    <!-- Text Section -->
+    <h3>📝 Predict from Text</h3>
+    <textarea id="newsInput" rows="6" style="width:100%"></textarea>
+    <button onclick="predictText()" style="margin-top:10px;">Predict Text</button>
+    <p id="textResult" style="margin-top:10px;"></p>
+
+    <hr />
+
+    <!-- Image Section -->
+    <h3>🖼️ Predict from Image</h3>
+    <input type="file" id="imageInput" accept="image/*" />
+    <button onclick="predictImage()" style="margin-top:10px;">Predict Image</button>
+    <p id="imageResult" style="margin-top:10px;"></p>
+  </div>
+
+  <script>
+    async function predictText() {
+      const text = document.getElementById("newsInput").value;
+      const res = await fetch("http://localhost:5000/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
+      document.getElementById("textResult").innerText =
+        `Prediction: ${data.prediction} (Confidence: ${(data.confidence * 100).toFixed(2)}%)`;
+    }
+
+    async function predictImage() {
+      const fileInput = document.getElementById("imageInput");
+      const formData = new FormData();
+      formData.append("image", fileInput.files[0]);
+
+      const res = await fetch("http://localhost:5000/predict-image", {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      document.getElementById("imageResult").innerText =
+        `Prediction: ${data.prediction} (Confidence: ${(data.confidence * 100).toFixed(2)}%)`;
+    }
+  </script>
+</body>
+</html>
